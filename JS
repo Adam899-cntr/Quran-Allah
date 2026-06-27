@@ -1,0 +1,40 @@
+const grid = document.getElementById('surah-list');
+
+// Генерация кнопок
+for(let i=1; i<=114; i++) {
+    grid.innerHTML += `<button class="surah-btn" onclick="loadSurah(${i})">Сура ${i}</button>`;
+}
+
+async function loadSurah(id) {
+    document.getElementById('main-view').style.display = 'none';
+    document.getElementById('reader-container').style.display = 'block';
+    window.scrollTo(0, 0);
+    
+    const content = document.getElementById('surah-content');
+    content.innerHTML = "Загрузка...";
+    
+    const response = await fetch(`https://api.alquran.cloud/v1/surah/${id}`);
+    const data = await response.json();
+    
+    document.getElementById('surah-title').innerText = data.data.name;
+    
+    let contentHTML = "";
+    // Басмала во всех сурах, кроме 1 и 9
+    if (id !== 1 && id !== 9) {
+        contentHTML = `<div class="basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
+    }
+    
+    contentHTML += data.data.ayahs.map(a => `
+        <div class="ayah">
+            ${a.text}
+            <span class="ayah-number">${a.numberInSurah}</span>
+        </div>
+    `).join('');
+    
+    content.innerHTML = contentHTML;
+}
+
+function closeReader() {
+    document.getElementById('reader-container').style.display = 'none';
+    document.getElementById('main-view').style.display = 'block';
+}
